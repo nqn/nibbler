@@ -36,6 +36,10 @@ if __name__ == '__main__':
 	slave_endpoint = 'http://%s/state.json' % slave_location
 	influx_endpoint = 'http://%s/db/%s/series?u=%s&p=%s' % (args.influxdb_host, args.influxdb_name, args.influxdb_user, args.influxdb_password)
 
+	create_json = '{"name": "%s"}' % args.influxdb_name
+	create_url = 'http://%s/db?u=%s&p=%s' % (args.influxdb_host, args.influxdb_user, args.influxdb_password)
+	requests.post(url=create_url, data=create_json, headers={'Content-Type': 'application/octet-stream'})
+
 	# One second sample rate.
 	sample_rate = 1
 
