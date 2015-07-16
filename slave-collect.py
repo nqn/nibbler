@@ -53,13 +53,13 @@ if __name__ == '__main__':
 		for sample in parse(monitor_endpoint):
 			framework_id = sample['framework_id']
 			executor_id = sample['executor_id']
-	
+
 			if framework_id not in samples:
 				samples[framework_id] = {}
-	
+
 			if executor_id not in samples[framework_id]:
 				samples[framework_id][executor_id] = None
-	
+
 			if samples[framework_id][executor_id] is not None:
 				# We need two samples to compute the cpu usage.
 				prev = samples[framework_id][executor_id]
@@ -73,9 +73,9 @@ if __name__ == '__main__':
 						"columns": [ "value", "slave_id", "framework_id", "executor_id"],
 						"points": [ [ cpu_usage, slave_id, framework_id, executor_id] ]
 				})
-	
+
 				influx_samples.extend(push(slave_id, framework_id, executor_id, sample['statistics']))
-				
+
 			samples[framework_id][executor_id] = sample
 
 		# Collect the latest metrics (gauges and counters).
@@ -86,12 +86,12 @@ if __name__ == '__main__':
 					"columns": [ "value", "slave_id"],
 					"points": [ [ metrics[metric], slave_id] ]
 			})
-		
+
 
 		# Send samples if collected.
 		if influx_samples is not '':
 			json_out = json.dumps(influx_samples)
 			print requests.post(url=influx_endpoint, data=json_out, headers={'Content-Type': 'application/octet-stream'})
 			print "Sent sample..."
-		
+
 		time.sleep(sample_rate)
