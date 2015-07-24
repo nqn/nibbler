@@ -54,3 +54,16 @@ Sent sample...
 <Response [200]>
 Sent sample...
 ```
+
+## Service setup
+
+To run nibbler with system:
+
+```bash
+cp nibbler.service.template nibbler.service
+# Change addresses in nibbler.service
+
+cp nibbler.service /usr/lib/systemd/system/nibbler.service
+systemctl enable nibbler.service
+systemctl start nibbler.service
+```
