@@ -60,10 +60,13 @@ Sent sample...
 To run nibbler with system:
 
 ```bash
+git clone https://github.com/nqn/nibbler.git /usr/local/share/applications/nibbler/
+cd /usr/local/share/applications/nibbler/
+
 cp nibbler.service.template nibbler.service
 # Change addresses in nibbler.service
 
-cp nibbler.service /usr/lib/systemd/system/nibbler.service
+mv nibbler.service /usr/lib/systemd/system/nibbler.service
 systemctl enable nibbler.service
 systemctl start nibbler.service
 ```
