@@ -1,4 +1,4 @@
-import os, sys, json, math, urllib, time, requests, argparse
+import json, urllib, time, requests, argparse
 
 
 def push(slave_id, framework_id, executor_id, obj):
@@ -70,6 +70,7 @@ if __name__ == '__main__':
         # Poor mans GC: We loose one sample per framework every 10.000 iterations.
         sample_count += 1
         if sample_count > 10000 == 0:
+            print "Cleaning samples..."
             sample_count = 0
             samples = {}
 
