@@ -1,5 +1,7 @@
 # Nibbler
 
+![Nibbler](http://vignette4.wikia.nocookie.net/en.futurama/images/c/cb/210_nibbler-satisfied.gif)
+
 Yet another collector for Mesos. Aiming to be as robust and platform (Mesos version) independent as possible.
 
 ## Dependencies

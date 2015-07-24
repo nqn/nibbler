@@ -1,0 +1,26 @@
+{
+  "id": "/monitoring/grafana",
+  "instances": 1,
+  "cpus": 0.25,
+  "mem": 256,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "grafana/grafana:2.0.2",
+      "network": "HOST"
+    }
+  },
+  "ports": [3000],
+  "requirePorts": true,
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "path": "/",
+      "portIndex": 0,
+      "gracePeriodSeconds": 10,
+      "intervalSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}
+

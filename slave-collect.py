@@ -1,32 +1,6 @@
-import json, urllib, time, requests, argparse
+import json, time, requests, argparse
 
-
-def push(slave_id, framework_id, executor_id, obj):
-    out = []
-    for id_, item in obj.iteritems():
-        if isinstance(item, dict):
-            out.extend(push(slave_id, framework_id, executor_id, item))
-        else:
-            out.append({
-                "name": id_,
-                "columns": ["value", "slave_id", "framework_id", "executor_id"],
-                "points": [[item, slave_id, framework_id, executor_id]]
-            })
-
-    return out
-
-
-def parse(url):
-    while True:
-        try:
-            response = urllib.urlopen(url)
-            data = response.read()
-            print url
-            return json.loads(data)
-        except IOError:
-            print "Could not load %s: retrying in one second" % url
-            time.sleep(1)
-            continue
+import nibbler
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -53,18 +27,19 @@ if __name__ == '__main__':
 
     create_json = '{"name": "%s"}' % args.influxdb_name
     create_url = 'http://%s/db?u=%s&p=%s' % (args.influxdb_host, args.influxdb_user, args.influxdb_password)
-    requests.post(url=create_url, data=create_json, headers={'Content-Type': 'application/octet-stream'})
+    nibbler.post_json(create_url, create_json)
 
     # One second sample rate.
     sample_rate = 1
 
     # Get slave state object once to tag samples.
-    slave_state = parse(slave_endpoint)
+    slave_state = nibbler.json_from_url(slave_endpoint)
     slave_id = slave_state['id']
 
     samples = {}
     sample_count = 0
 
+    # Sample loop.
     while True:
         # Poor mans GC: We loose one sample per framework every 10.000 iterations.
         sample_count += 1
@@ -76,7 +51,7 @@ if __name__ == '__main__':
         influx_samples = []
 
         # Collect the latest resource usage statistics.
-        for sample in parse(monitor_endpoint):
+        for sample in nibbler.json_from_url(monitor_endpoint):
             framework_id = sample['framework_id']
             executor_id = sample['executor_id']
 
@@ -101,7 +76,7 @@ if __name__ == '__main__':
                     "points": [[cpu_usage, slave_id, framework_id, executor_id]]
                 })
 
-                influx_samples.extend(push(slave_id, framework_id, executor_id, sample['statistics']))
+                influx_samples.extend(nibbler.influxdb_entries_from_object(slave_id, framework_id, executor_id, sample['statistics']))
 
                 # Compute slack CPU.
                 cpu_slack = sample['statistics']['cpus_limit'] - cpu_usage
@@ -122,7 +97,7 @@ if __name__ == '__main__':
             samples[framework_id][executor_id] = sample
 
         # Collect the latest metrics (gauges and counters).
-        metrics = parse(metrics_endpoint)
+        metrics = nibbler.json_from_url(metrics_endpoint)
         for metric in metrics:
             influx_samples.append({
                 "name": metric,
@@ -133,8 +108,7 @@ if __name__ == '__main__':
         # Send samples if collected.
         if influx_samples is not '':
             json_out = json.dumps(influx_samples)
-            print requests.post(url=influx_endpoint, data=json_out,
-                                headers={'Content-Type': 'application/octet-stream'})
+            print nibbler.post_json(influx_endpoint, json_out)
             print "Sent sample..."
 
         time.sleep(sample_rate)

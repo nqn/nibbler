@@ -1,0 +1,15 @@
+{
+  "id": "/monitoring/influxdb",
+  "instances": 1,
+  "cpus": 0.25,
+  "mem": 256,
+  "ports": [8083, 8086],
+  "requirePorts": true,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "tutum/influxdb:0.8.8",
+      "network": "HOST"
+    }
+  }
+}
