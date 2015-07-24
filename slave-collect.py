@@ -47,10 +47,15 @@ if __name__ == '__main__':
 	slave_state = parse(slave_endpoint)
 	slave_id = slave_state['id']
 
-	# TODO(nnielsen): Clean up samples for completed frameworks.
 	samples = {}
 
 	while True:
+    # Poor mans GC: We loose one sample per framework every 10.000 iterations.
+    sample_count += 1
+    if sample_count > 10000 == 0:
+      sample_count = 0
+      samples = {}
+
 		influx_samples = []
 
 		# Collect the latest resource usage statistics.
@@ -80,6 +85,22 @@ if __name__ == '__main__':
 
 				influx_samples.extend(push(slave_id, framework_id, executor_id, sample['statistics']))
 
+        # Compute slack CPU.
+        cpu_slack = sample['statistics']['cpus_limit'] - cpu_usage
+				influx_samples.append({
+						"name": "cpu_slack",
+						"columns": [ "value", "slave_id", "framework_id", "executor_id"],
+						"points": [ [ cpu_slack, slave_id, framework_id, executor_id] ]
+				})
+
+        # Compute slack memory.
+        mem_slack = sample['statistics']['mem_limit_bytes'] - sample['statistics']['mem_rss_bytes']
+				influx_samples.append({
+						"name": "mem_slack",
+						"columns": [ "value", "slave_id", "framework_id", "executor_id"],
+						"points": [ [ mem_slack, slave_id, framework_id, executor_id] ]
+				})
+
 			samples[framework_id][executor_id] = sample
 
 		# Collect the latest metrics (gauges and counters).
@@ -87,8 +108,8 @@ if __name__ == '__main__':
 		for metric in metrics:
 			influx_samples.append({
 					"name": metric,
-					"columns": [ "value", "slave_id"],
-					"points": [ [ metrics[metric], slave_id] ]
+					"columns": [ "value", "slave_id", "source"],
+					"points": [ [ metrics[metric], slave_id, "slave"] ]
 			})
 
 
