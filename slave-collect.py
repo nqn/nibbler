@@ -17,15 +17,25 @@ def push(slave_id, framework_id, executor_id, obj):
 
 
 def parse(url):
-    response = urllib.urlopen(url)
-    data = json.loads(response.read())
-    return data
-
+    while True:
+        try:
+            response = urllib.urlopen(url)
+            data = response.read()
+            print url
+            print data
+            return json.loads(data)
+        except IOError:
+            print "Could not load %s: retrying in one second" % url
+            time.sleep(1)
+            continue
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Nibbler collects statistics and metrics from a Mesos slave and push them to influxdb')
     parser.add_argument('--slave', default='localhost:5051', type=str, help='hostname and port for mesos slave')
+    parser.add_argument('--slave-state', default='state.json', type=str, help='path to state.json')
+    parser.add_argument('--slave-monitor', default='monitor/statistics.json', type=str, help='path to statistics.json')
+    parser.add_argument('--slave-metrics', default='metrics/snapshot', type=str, help='path to metrics snapshot json')
     parser.add_argument('--influxdb-host', default='localhost:8086', type=str,
                         help='hostname and port for influxdb admin server')
     parser.add_argument('--influxdb-name', required=True, type=str, help='Database name to use')
@@ -36,9 +46,9 @@ if __name__ == '__main__':
 
     slave_location = args.slave
 
-    monitor_endpoint = 'http://%s/monitor/statistics.json' % slave_location
-    metrics_endpoint = 'http://%s/metrics/snapshot' % slave_location
-    slave_endpoint = 'http://%s/state.json' % slave_location
+    monitor_endpoint = 'http://%s/%s' % (slave_location, args.slave_monitor)
+    metrics_endpoint = 'http://%s/%s' % (slave_location, args.slave_metrics)
+    slave_endpoint = 'http://%s/%s' % (slave_location, args.slave_state)
     influx_endpoint = 'http://%s/db/%s/series?u=%s&p=%s' % (
         args.influxdb_host, args.influxdb_name, args.influxdb_user, args.influxdb_password)
 
