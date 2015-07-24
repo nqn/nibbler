@@ -22,7 +22,6 @@ def parse(url):
             response = urllib.urlopen(url)
             data = response.read()
             print url
-            print data
             return json.loads(data)
         except IOError:
             print "Could not load %s: retrying in one second" % url
