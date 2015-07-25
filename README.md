@@ -59,16 +59,30 @@ Sent sample...
 
 ## Service setup
 
-To run nibbler with system:
+To run nibbler slave agent with systemd:
 
 ```bash
 git clone https://github.com/nqn/nibbler.git /usr/local/share/applications/nibbler/
 cd /usr/local/share/applications/nibbler/
 
-cp nibbler.service.template nibbler.service
-# Change addresses in nibbler.service
+cp nibbler-slave.service.template nibbler-slave.service
+# Change addresses in nibbler-slave.service
 
-mv nibbler.service /usr/lib/systemd/system/nibbler.service
-systemctl enable nibbler.service
-systemctl start nibbler.service
+mv nibbler-slave.service /usr/lib/systemd/system/nibbler-slave.service
+systemctl enable nibbler-slave
+systemctl start nibbler-slave
+```
+
+To run nibbler master agent with systemd:
+
+```bash
+git clone https://github.com/nqn/nibbler.git /usr/local/share/applications/nibbler/
+cd /usr/local/share/applications/nibbler/
+
+cp nibbler-master.service.template nibbler-master.service
+# Change addresses in nibbler-master.service
+
+mv nibbler-master.service /usr/lib/systemd/system/nibbler-master.service
+systemctl enable nibbler-master
+systemctl start nibbler-master
 ```
