@@ -1,0 +1,8 @@
+[Unit]
+Description=Nibbler Slave Agent
+
+[Service]
+ExecStart=/usr/bin/python /usr/local/share/applications/nibbler/slave-collect.py --influxdb-name mesos --influxdb-host <influxdb host>:8086 --slave <slave ip>:5051
+
+[Install]
+WantedBy=multi-user.target
