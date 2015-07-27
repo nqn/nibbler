@@ -3,6 +3,7 @@ Description=Nibbler Master Agent
 
 [Service]
 ExecStart=/usr/bin/python /usr/local/share/applications/nibbler/master-collect.py --influxdb-name mesos --influxdb-host <influxdb host>:8086 --master <master ip>:5050
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
