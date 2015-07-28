@@ -1,4 +1,4 @@
-import json, time, requests, argparse
+import json, time, requests, argparse, time
 
 import nibbler
 
@@ -55,6 +55,9 @@ if __name__ == '__main__':
             framework_id = sample['framework_id']
             executor_id = sample['executor_id']
 
+            if 'statistics' in sample and 'timestamp' not in sample['statistics']:
+                sample['statistics']['timestamp'] = time.time()
+
             if framework_id not in samples:
                 samples[framework_id] = {}
 
@@ -64,7 +67,9 @@ if __name__ == '__main__':
             if samples[framework_id][executor_id] is not None:
                 # We need two samples to compute the cpu usage.
                 prev = samples[framework_id][executor_id]
+
                 interval = sample['statistics']['timestamp'] - prev['statistics']['timestamp']
+
                 user_time = sample['statistics']['cpus_user_time_secs'] - prev['statistics']['cpus_user_time_secs']
                 system_time = sample['statistics']['cpus_system_time_secs'] - prev['statistics'][
                     'cpus_system_time_secs']
