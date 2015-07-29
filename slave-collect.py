@@ -2,6 +2,33 @@ import json, time, requests, argparse, time
 
 import nibbler
 
+def validate_statistics_sample(sample):
+    if 'framework_id' not in sample:
+        print 'Framework ID not found in sample'
+        return False
+
+    if 'executor_id' not in sample:
+        print 'Executor ID not found in sample'
+        return False
+
+    if 'statistics' not in sample:
+        print 'statistics not found in sample'
+        return False
+
+    if 'timestamp' not in sample['statistics']:
+        print 'timestamp not found in sample'
+       return False
+
+    if 'cpus_user_time_secs' not in sample['statistics']:
+        print 'cpu user time not found in sample'
+        return False
+
+    if 'cpus_system_time_secs' not in sample['statistics']:
+        print 'cpu system time not found in sample'
+        return False
+
+    return True
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Nibbler collects statistics and metrics from a Mesos slave and push them to influxdb')
@@ -52,11 +79,16 @@ if __name__ == '__main__':
 
         # Collect the latest resource usage statistics.
         for sample in nibbler.json_from_url(monitor_endpoint):
-            framework_id = sample['framework_id']
-            executor_id = sample['executor_id']
-
             if 'statistics' in sample and 'timestamp' not in sample['statistics']:
                 sample['statistics']['timestamp'] = time.time()
+
+            # Validate sample
+            if validate_statistics_sample(sample) == False:
+                print "Warning: partial sample %s" % sample
+                continue
+
+            framework_id = sample['framework_id']
+            executor_id = sample['executor_id']
 
             if framework_id not in samples:
                 samples[framework_id] = {}
