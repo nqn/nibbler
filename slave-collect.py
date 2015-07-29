@@ -17,7 +17,7 @@ def validate_statistics_sample(sample):
 
     if 'timestamp' not in sample['statistics']:
         print 'timestamp not found in sample'
-       return False
+        return False
 
     if 'cpus_user_time_secs' not in sample['statistics']:
         print 'cpu user time not found in sample'
