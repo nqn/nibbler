@@ -150,7 +150,7 @@ if __name__ == '__main__':
                         prev_instructions = prev_perf['instructions']
                         instructions = perf['instructions']
 
-                    if prev_cycles != None and cycles != None and prev_instructions !=
+                    if prev_cycles != None and cycles != None and prev_instructions != None and instructions != None:
                         cycle_delta = cycles - prev_cycles
                         instruction_delta = instructions - prev_instructions
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
                             print ipc
                             influx_samples.append({
                                 "name": "ipc",
-                                "columns": ["value", "slave_id", "framework_id", "execu
+                                "columns": ["value", "slave_id", "framework_id", "executor_id"],
                                 "points": [[ipc, slave_id, framework_id, executor_id]]
                             })
 
