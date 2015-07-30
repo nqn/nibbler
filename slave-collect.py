@@ -52,10 +52,6 @@ if __name__ == '__main__':
     influx_endpoint = 'http://%s/db/%s/series?u=%s&p=%s' % (
         args.influxdb_host, args.influxdb_name, args.influxdb_user, args.influxdb_password)
 
-    create_json = '{"name": "%s"}' % args.influxdb_name
-    create_url = 'http://%s/db?u=%s&p=%s' % (args.influxdb_host, args.influxdb_user, args.influxdb_password)
-    nibbler.post_json(create_url, create_json)
-
     # One second sample rate.
     sample_rate = 1
 
@@ -68,6 +64,12 @@ if __name__ == '__main__':
 
     # Sample loop.
     while True:
+        # If InfluxDB failed over, make sure database is available.
+        if sample_count % 10 == 0:
+            create_json = '{"name": "%s"}' % args.influxdb_name
+            create_url = 'http://%s/db?u=%s&p=%s' % (args.influxdb_host, args.influxdb_user, args.influxdb_password)
+            nibbler.post_json(create_url, create_json)
+
         # Poor mans GC: We loose one sample per framework every 10.000 iterations.
         sample_count += 1
         if sample_count > 10000 == 0:
