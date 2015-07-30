@@ -131,6 +131,38 @@ if __name__ == '__main__':
                     "points": [[mem_slack, slave_id, framework_id, executor_id]]
                 })
 
+                # Compute IPC.
+                if 'perf' in sample['statistics'] and 'perf' in prev['statistics']:
+                    prev_perf = prev['statistics']['perf']
+                    perf = sample['statistics']['perf']
+
+                    prev_cycles = None
+                    cycles = None
+
+                    prev_instructions = None
+                    instructions = None
+
+                    if 'cycles' in perf and 'cycles' in prev_perf:
+                        prev_cycles = prev_perf['cycles']
+                        cycles = perf['cycles']
+
+                    if 'instructions' in perf and 'instructions' in prev_perf:
+                        prev_instructions = prev_perf['instructions']
+                        instructions = perf['instructions']
+
+                    if prev_cycles != None and cycles != None and prev_instructions !=
+                        cycle_delta = cycles - prev_cycles
+                        instruction_delta = instructions - prev_instructions
+
+                        if instruction_delta != 0 and cycle_delta != 0:
+                            ipc = instruction_delta / cycle_delta
+                            print ipc
+                            influx_samples.append({
+                                "name": "ipc",
+                                "columns": ["value", "slave_id", "framework_id", "execu
+                                "points": [[ipc, slave_id, framework_id, executor_id]]
+                            })
+
             samples[framework_id][executor_id] = sample
 
         # Collect the latest metrics (gauges and counters).
