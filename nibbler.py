@@ -21,7 +21,6 @@ def json_from_url(url):
         try:
             response = urllib.urlopen(url)
             data = response.read()
-            print url
             return json.loads(data)
         except IOError:
             print "Could not load %s: retrying in one second" % url

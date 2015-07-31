@@ -13,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--slave-state', default='state.json', type=str, help='path to state.json')
     parser.add_argument('--slave-metrics', default='metrics/snapshot', type=str, help='path to metrics snapshot json')
     parser.add_argument('--broker', required=True, type=str, help='location of kafka broker')
+    parser.add_argument('--topic', required=True, type=str, help='Topic for measurements')
 
     args = parser.parse_args()
 
@@ -39,7 +40,7 @@ if __name__ == '__main__':
         # Collect the latest metrics (gauges and counters).
         metrics = nibbler.json_from_url(metrics_endpoint)
         kafka_sample = {'slave_id': slave_id, 'timestamp': time.time(), 'metrics': metrics}
-        producer.send_messages('nibbler_metrics', json.dumps(kafka_sample))
+        producer.send_messages(args.topic, json.dumps(kafka_sample))
 
         time.sleep(sample_rate)
 
