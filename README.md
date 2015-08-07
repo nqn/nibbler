@@ -7,7 +7,7 @@ Yet another collector for Mesos. Aiming to be as robust and platform (Mesos vers
 ## Dependencies
 
  - InfluxDB 0.8.X
- - Python 2.8.X (`requests` library)
+ - Python 2.7.X (`requests` library)
 
 ## Usage
 
