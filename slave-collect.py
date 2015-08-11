@@ -29,6 +29,14 @@ def validate_statistics_sample(sample):
 
     return True
 
+
+def executor_metric(influx_samples, metric, value, slave_id, framework_id, executor_id):
+    influx_samples.append({
+        "name": metric,
+        "columns": ["value", "slave_id", "framework_id", "executor_id"],
+        "points": [[value, slave_id, framework_id, executor_id]]
+    })
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Nibbler collects statistics and metrics from a Mesos slave and push them to influxdb')
@@ -119,51 +127,28 @@ if __name__ == '__main__':
 
                 # Compute slack CPU.
                 cpu_slack = sample['statistics']['cpus_limit'] - cpu_usage
-                influx_samples.append({
-                    "name": "cpu_slack",
-                    "columns": ["value", "slave_id", "framework_id", "executor_id"],
-                    "points": [[cpu_slack, slave_id, framework_id, executor_id]]
-                })
+		executor_metric(influx_samples, "cpu_slack", cpu_slack, slave_id, framework_id, executor_id)
 
                 # Compute slack memory.
                 mem_slack = sample['statistics']['mem_limit_bytes'] - sample['statistics']['mem_rss_bytes']
-                influx_samples.append({
-                    "name": "mem_slack",
-                    "columns": ["value", "slave_id", "framework_id", "executor_id"],
-                    "points": [[mem_slack, slave_id, framework_id, executor_id]]
-                })
+		executor_metric(influx_samples, "mem_slack", mem_slack, slave_id, framework_id, executor_id)
 
                 # Compute IPC.
                 if 'perf' in sample['statistics'] and 'perf' in prev['statistics']:
                     prev_perf = prev['statistics']['perf']
                     perf = sample['statistics']['perf']
 
-                    prev_cycles = None
-                    cycles = None
+                if (perf['timestamp'] > prev_perf['timestamp']) and ('cycles' in perf and 'instructions' in perf):
+                    cycles = perf['cycles']
+                    instructions = perf['instructions']
 
-                    prev_instructions = None
-                    instructions = None
+                    ipc = float(instructions) / float(cycles)
+                    cpi = float(cycles) / float(instructions)
+                    ips = float(instructions) / float(perf['duration'])
 
-                    if 'cycles' in perf and 'cycles' in prev_perf:
-                        prev_cycles = prev_perf['cycles']
-                        cycles = perf['cycles']
-
-                    if 'instructions' in perf and 'instructions' in prev_perf:
-                        prev_instructions = prev_perf['instructions']
-                        instructions = perf['instructions']
-
-                    if prev_cycles != None and cycles != None and prev_instructions != None and instructions != None:
-                        cycle_delta = cycles - prev_cycles
-                        instruction_delta = instructions - prev_instructions
-
-                        if instruction_delta != 0 and cycle_delta != 0:
-                            ipc = instruction_delta / cycle_delta
-                            print ipc
-                            influx_samples.append({
-                                "name": "ipc",
-                                "columns": ["value", "slave_id", "framework_id", "executor_id"],
-                                "points": [[ipc, slave_id, framework_id, executor_id]]
-                            })
+                    executor_metric(influx_samples, "ipc", ipc, slave_id, framework_id, executor_id)
+                    executor_metric(influx_samples, "cpi", cpi, slave_id, framework_id, executor_id)
+                    executor_metric(influx_samples, "ips", ips, slave_id, framework_id, executor_id)
 
             samples[framework_id][executor_id] = sample
 
