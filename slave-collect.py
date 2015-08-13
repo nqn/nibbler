@@ -127,11 +127,11 @@ if __name__ == '__main__':
 
                 # Compute slack CPU.
                 cpu_slack = sample['statistics']['cpus_limit'] - cpu_usage
-		executor_metric(influx_samples, "cpu_slack", cpu_slack, slave_id, framework_id, executor_id)
+                executor_metric(influx_samples, "cpu_slack", cpu_slack, slave_id, framework_id, executor_id)
 
                 # Compute slack memory.
                 mem_slack = sample['statistics']['mem_limit_bytes'] - sample['statistics']['mem_rss_bytes']
-		executor_metric(influx_samples, "mem_slack", mem_slack, slave_id, framework_id, executor_id)
+		            executor_metric(influx_samples, "mem_slack", mem_slack, slave_id, framework_id, executor_id)
 
                 # Compute IPC.
                 if 'perf' in sample['statistics'] and 'perf' in prev['statistics']:
@@ -148,6 +148,7 @@ if __name__ == '__main__':
 
                     executor_metric(influx_samples, "ipc", ipc, slave_id, framework_id, executor_id)
                     executor_metric(influx_samples, "cpi", cpi, slave_id, framework_id, executor_id)
+                    executor_metric(influx_samples, "cpi2", cpi * cpi, slave_id, framework_id, executor_id)
                     executor_metric(influx_samples, "ips", ips, slave_id, framework_id, executor_id)
 
             samples[framework_id][executor_id] = sample
