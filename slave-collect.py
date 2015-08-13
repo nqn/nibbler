@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
                 # Compute slack memory.
                 mem_slack = sample['statistics']['mem_limit_bytes'] - sample['statistics']['mem_rss_bytes']
-		            executor_metric(influx_samples, "mem_slack", mem_slack, slave_id, framework_id, executor_id)
+                executor_metric(influx_samples, "mem_slack", mem_slack, slave_id, framework_id, executor_id)
 
                 # Compute IPC.
                 if 'perf' in sample['statistics'] and 'perf' in prev['statistics']:
