@@ -138,18 +138,18 @@ if __name__ == '__main__':
                     prev_perf = prev['statistics']['perf']
                     perf = sample['statistics']['perf']
 
-                if (perf['timestamp'] > prev_perf['timestamp']) and ('cycles' in perf and 'instructions' in perf):
-                    cycles = perf['cycles']
-                    instructions = perf['instructions']
+                    if (perf['timestamp'] > prev_perf['timestamp']) and ('cycles' in perf and 'instructions' in perf):
+                        cycles = perf['cycles']
+                        instructions = perf['instructions']
 
-                    ipc = float(instructions) / float(cycles)
-                    cpi = float(cycles) / float(instructions)
-                    ips = float(instructions) / float(perf['duration'])
+                        ipc = float(instructions) / float(cycles)
+                        cpi = float(cycles) / float(instructions)
+                        ips = float(instructions) / float(perf['duration'])
 
-                    executor_metric(influx_samples, "ipc", ipc, slave_id, framework_id, executor_id)
-                    executor_metric(influx_samples, "cpi", cpi, slave_id, framework_id, executor_id)
-                    executor_metric(influx_samples, "cpi2", cpi * cpi, slave_id, framework_id, executor_id)
-                    executor_metric(influx_samples, "ips", ips, slave_id, framework_id, executor_id)
+                        executor_metric(influx_samples, "ipc", ipc, slave_id, framework_id, executor_id)
+                        executor_metric(influx_samples, "cpi", cpi, slave_id, framework_id, executor_id)
+                        executor_metric(influx_samples, "cpi2", cpi * cpi, slave_id, framework_id, executor_id)
+                        executor_metric(influx_samples, "ips", ips, slave_id, framework_id, executor_id)
 
             samples[framework_id][executor_id] = sample
 
